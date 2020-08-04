@@ -8,7 +8,7 @@ Motivated by some friends of mine, I started to write my personal lecture notes 
 - covers all stuff (I believe) on the slides
 - add important remarks (I think) mentioned by Prof. Thomas Hofmann during the lectures but not on the slides
 - connect things in each chapter together with motivations and detailed discussions (if they are correct) in a plain language
-- add some supplementary materials (also reorganized with my own words) that I think are useful to get a deeper insight into some points.
+- add some supplementary materials (also reorganized with my own words) that I think are useful to get a deeper insight into some points
 
 and I’d like to share it. It will be happy for me if it helps someone learn this course considering that it actually covers a lot of stuff.
 
