@@ -2,7 +2,8 @@
 
 Hey guys, I have finished all exams expect CIL and will start to update the later chapters soon:)
 
-- Chaper 7 is on the notes! (Aug. 15)
+- Chapter 7 is on the notes! (Aug. 15)
+- Chapter 8 until GANs (Aug. 16)
 
 # CIL-Notes-2020
 Personal notes for Computational Intelligence Lab (CIL) 2020 by Prof. Thomas Hofmann at ETH Zurich
