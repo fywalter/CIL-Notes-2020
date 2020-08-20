@@ -1,0 +1,7 @@
+*.aux
+*.out
+*.synctex.gz
+*.log
+book-template.pdf
+book-template.toc
+
