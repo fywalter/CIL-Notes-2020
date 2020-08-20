@@ -1,0 +1,234 @@
+\documentclass[../book-template.tex]{subfiles}
+
+\begin{document}
+
+\chapter{Matrix Approximation and Reconstruction}
+In chapter 1, we discussed about low-rank matrix approximation, while in this chapter we will introduce a slightly different topic, Matrix Completion, which is the task of filling in the missing entries of a partially observed matrix. The matrix completion problem is in general NP-hard, but we will show in this chapter that under the low-rank assumption there are algorithms that can do exact reconstruction with high probability. We will start by introducing the famous Netflix problem and collaborative filtering, of which matrix completion is at the heart.
+\section{Collaborative Filtering}
+Collaborative filtering is a classical example of matrix completion and is a technique that is frequently used in recommender systems. Given the entire data set, a recommender system needs to analyze patterns of interest in terms (products, movies, ...) and provide personalized recommendations for users. With the motivation that every user has a relative stable preference and similar users have similar preferences, collaborative filtering exploits collective data from many users and builds models that can generalize across users and , possibly also, across items.
+\par Consider the Netflix Data, which is a matrix with its rows correspond to users and columns refer to different movies. Each entry of this matrix is a 1-5 star rating of a movie given by a user, while, of course, there are a lot of missing values. Also, the data is imbalanced in a way that there are users gave a lot of ratings while some did not, so as the movies. The task is to predict the missing values. In another word, to complete the matrix.
+\par Let the size of the rating matrix to be  $m\times n$. One way to complete the matrix is to build a statistical model with $k\ll m\times n$ parameters that introduces coupling between entries and then infer the missing entries from the observed ones. This can be formalized in a low-rank decomposition manner: we want to find the best approximation with low rank $r\ll \min\{m,n\}$. In this case, number of the parameters $k$, i.e. the number of entries in decomposition, satisfies $k\leq r\cdot (m+n)\ll m\times n$.
+\section{Matrix Approximation via SVD}
+We first briefly review some of the concepts from linear algebra, which are helpful and necessary for understanding the matrix approximation method via SVD. We start by revisiting 2 frequently used matrix norms.
+\begin{definition}
+	(Frobenius norm) For a matrix ${\bf A}\in \mathbb{R}^{m \times n}$, its Frobenius is given by
+	\begin{equation*}
+		\|{\bf A}\|_F :=\sqrt{\sum_{i=1}^{m}\sum_{j=1}^{n}a_{ij}^2}=\|vec({\bf A})\|_2=\sqrt{trace({\bf A}^T{\bf A})}
+	\end{equation*}
+\end{definition}
+Frobenius norm only depends on the singular values of ${\bf A}$:
+\begin{equation*}
+	\|{\bf A}\|_F^2 = \sum_{i=1}^{k}\sigma_i^2,\ k=\min\{m,n\}
+\end{equation*}
+which follows from the cyclic property of trace: $trace({\bf ABC})=trace({\bf BCA})$:
+\begin{equation*}
+	trace({\bf A}^T{\bf A}) = trace({\bf VD}^T{\bf U}^T{\bf UDV}^T)=trace({\bf V}^T{\bf VD}^T{\bf D}) = \sum_{i=1}^{k}\sigma_i^2
+\end{equation*}
+\begin{definition}
+	(Induced $p$-norm) For a matrix ${\bf A}\in \mathbb{R}^{m \times n}$, its induced $p$-norm is given by
+	\begin{equation*}
+	\|{\bf A}\|_p :=\sup\{\|{\bf A}\bm{x}\|_p:\ \|\bm{x}\|_p=1\},\ \|\bm{x}\|_p:=\left(\sum_{i}|x_i|^p\right)^{1/p}
+	\end{equation*}
+\end{definition}
+where for $p=2$ it's also called \emph{spectral norm}, which is equal to the largest singular value
+\begin{definition}
+	(Spectral norm) For a matrix ${\bf A}\in \mathbb{R}^{m \times n}$, its spectral norm is given by
+	\begin{equation*}
+	\|{\bf A}\|_2 :=\sup\{\|{\bf A}\bm{x}\|_2:\ \|\bm{x}\|_2=1\}=\sigma_1({\bf A})
+	\end{equation*}
+\end{definition}
+The statement that the spectral norm is equal to the largest singular value follows from
+\begin{align*}
+	\|{\bf A}\bm{x}\|_2^2 
+	&= \bm{x}^T{\bf A}^T{\bf A}\bm{x}\\
+	&=  \bm{x}^T{\bf VD}^T{\bf U}^T{\bf UDV}^T\bm{x}\\
+	&= \bm{v}^T{\bf D}^2\bm{v}\ (\bm{v} = {\bf V}\bm{x}^T,\ \|\bm{v}\|_2=1)\\
+	&= \sum_{i=1}^{k} \sigma_i^2v_i^2\leq \sigma_1^2\sum_{i=1}^{k}v_i^2 = \sigma_1^2
+\end{align*}
+where the inequality is met with equality when $\bm{v} = (1,0,\dots,0)$.
+\par Finally, recall that Eckart-Young Theorem (Theorem \ref{thm_1_EY}) give the optimal low rank approximation in both Frobenius norm and spectral norm (see the proof of Theorem \ref{thm_1_EY}). Specifically, given ${\bf A}={\bf UDV}^T$, define for $k\leq rank({\bf A})$:
+\begin{equation*}
+	{\bf A}_k :=\sum_{i=1}^{k}\sigma_i \bm{u}_i\bm{v}_i^T,\ rank({\bf A}_k)=k
+\end{equation*}
+then ${\bf A}_k$ is the best approximation in terms of Frobenius norm and spectral norm:
+\begin{align*}
+	&\min_{rank({\bf B})=k}\|{\bf A}-{\bf B}\|^2_F=\|{\bf A}-{\bf A}_k\|_F^2=\sum_{r=k+1}^{rank({\bf A})} \sigma_r^2\\
+	&\min_{rank({\bf B})=k}\|{\bf A}-{\bf B}\|_2=\|{\bf A}-{\bf A}_k\|_2=\sigma_{k+1}
+\end{align*}
+\section{SVD for Collaborative Filtering}
+Assume that we have a fully observed rating matrix ${\bf A}$, then the SVD of ${\bf A}$ has a clear interpretation:
+\begin{itemize}
+	\item The truncated number of dimension $k$: number of latent factors.
+	\item ${\bf U}$: user-to-factor association matrix.
+	\item ${\bf V}$: items-to-factor association matrix.
+	\item ${\bf D}$: level of strength (importance) of each factor.
+\end{itemize} 
+In the slide of matrix reconstruction, there is a very nice example to illustrate this interpretation of SVD.
+\section{Algorithms for matrix completion}\label{sec_3_alg_for_mc}
+\subsection{The hardness of matrix completion}
+As we have mentioned at the beginning of the last section, the SVD solution of matrix reconstruction, suggested by Eckart-Young Theorem, requires fully observed rating matrices which in most of the times is not that case. The existence of unobserved entries turns the optimization problem from
+\begin{equation}\label{eq_3_opt_full}
+	\min_{rank({\bf B})=k}\left[\sum_{i,j}(a_{ij}-b{ij})^2 \right]=	\min_{rank({\bf B})=k}\|{\bf A}-{\bf B}\|_F^2
+\end{equation} 
+to
+\begin{equation}\label{eq_3_opt_partial}
+\min_{rank({\bf B})=k}\left[\sum_{(i,j)\in \mathcal{I}}(a_{ij}-b{ij})^2 \right],\ \mathcal{I}=\{(i,j):\ \text{observed}\}
+\end{equation} 
+where in both case we usually preprocess the data to have 
+$$a_{ij}\leftarrow a_{ij}-\frac{1}{|\mathcal{I}|}\sum_{\mathcal{I}}a_{ij}$$
+\par A natural attempt to remedy the problem is by replacing the unobserved entries by something like mean or zero, which is known as \emph{data imputation}. However, this attempt will fail miserably when there are a large number of missing values. 
+\par Note that, even if Eckart-Young Theorem gives the optimal solution of (\ref{eq_3_opt_full}) miraculously, surprisingly the optimizing problem itself is not convex, since the rank constraint is not convex. It's not difficult to see this by noticing that the convex combination of rank 1 matrices may not give a rank 1 matrix:
+\begin{equation*}
+	\begin{gathered}
+		\frac{1}{2}\begin{bmatrix}
+		1 & 0 \\ 0 & 0
+		\end{bmatrix} + 
+		\frac{1}{2}\begin{bmatrix}
+		0 & 0 \\ 0 & 1
+		\end{bmatrix} =
+		\frac{1}{2}\begin{bmatrix}
+		1 & 0 \\ 0 & 1
+		\end{bmatrix}
+	\end{gathered}
+\end{equation*}
+\par The hardness of matrix completion can be seen from replacing the Frobenius norm in (\ref{eq_3_opt_full}) to weighted Frobenius norm defined as follow
+\begin{definition}\label{def_3_wtd_f_norm}
+	(Weighted Frobenius norm) the weighted Frobenius norm with regard to matrix ${\bf G}\geq {\bf 0}$ is defined as
+	\begin{equation*}
+	\|{\bf X}\|_{{\bf G}}:=\sqrt{\sum_{i,j}g_{ij}x_{ij}^2}
+	\end{equation*}
+\end{definition}
+Note that the observation indicator matrix $\mathcal{I}$ is a special case of ${\bf G}$ for $g_{ij}\in\{0,1\}$ (Boolean).
+\par It's known that in general, solving the following low-rank approximation problem is intrinsically hard
+\begin{equation*}
+	\min_{rank({\bf B})\leq k} \|{\bf A}-{\bf B}\|_{{\bf G}}^2
+\end{equation*}
+This is shown to be NP-hard (Gillis \& Glineur, 2011) even for $k=1$. The hardness also holds for approximations with prescribed accuracy and for binary ${\bf G}$.
+\par So far we have seen that, matrix completion is a non-convex problem, which contributes a lot to its hardness. In general, the non-convexity of a problem comes from two aspects. 
+\par The first one is the non-convex domain, as in the matrix completion with rank constraint (\ref{eq_3_opt_full}), where we minimize a convex objective over domain $\mathcal{Q}_k:=\{{\bf B}:rank({\bf B})=k\}$. The way to tackle it is really at the heart of \textbf{convex relaxation} that we are going to introduce, where we relax the non-convex constraint to have a convex domain.
+\par The other one is the non-convex objective. In our matrix completion task, to remedy the non-convex rank constraint, we force this it by re-parameterizing ${\bf B}={\bf UV},\ {\bf U}\in \mathbb{R}^{m\times k},\ {\bf V}\in \mathbb{R}^{k\times n}$ since by definition $rank({\bf B})\leq k$. However, there is no free lunch, by doing reparametrization, the objective becomes non-convex. Consider $f(u, v) = (a-uv)^2$, which is a simplified case for matrix problem. For $a\neq 0$, there exists $u_1v_1=u_2v_2=a \land u_1\neq u_2$ that follows
+\begin{equation*}
+	f(u_1,v_1)=f(u_2,v_2)=0\land f(\frac{u_1+u_2}{2},\frac{v_1+v_2}{2})>0.
+\end{equation*}
+Despite the non-convexity of the new objective, it has some nice properties that lead to the \textbf{alternating least squares} method.
+\begin{remark}
+	An interesting thing to mention is that the decomposition ${\bf B} = {\bf UV}$ not only removes the non-convex rank constraint but also maintains a analogous interpretation as SVD. ${\bf U}$ captures user-to-factor association while ${\bf V}$ describes item-to-factor collaboration.
+\end{remark}
+\subsection{Alternating Least Squares}
+Using the reparametrization, we make the domain convex, but at the same time, the objective function $f({\bf U}, {\bf V})$ is not jointly convex in ${\bf U}$ and ${\bf V}$. 
+\begin{equation*}
+	f({\bf U}, {\bf V})=\frac{1}{|\mathcal{I}|}\sum_{(i,j)\in \mathcal{I}}(a_{ij}-\langle\bm{u}_i,\bm{v}_j\rangle)^2
+\end{equation*}
+where $\bm{u}_i$'s are rows of ${\bf U}$ and $\bm{v}_i$'s are columns of ${\bf V}$. However, for fixed ${\bf U}$, $f$ is convex in ${\bf V}$. For fixed ${\bf V}$ in turn, $f$ is convex in ${\bf U}$. This observation suggests an alternating minimization over ${\bf U}$ and ${\bf V}$:
+\begin{align*}
+	&{\bf U}\leftarrow \mathop{\arg\min}_{{\bf U}} f({\bf U}, {\bf V})\\
+	&{\bf V}\leftarrow \mathop{\arg\min}_{{\bf V}} f({\bf U}, {\bf V}),\quad \text{repeat until convergence}
+\end{align*}
+Since $f$ is never increased in this alternating minimization progress, and by definition (sum of squares) f is lower bounded by $0$, by monotone convergence theorem $f$ will converge as the number of iteration goes to infinity. However, the convergence of $f$ does not necessarily mean that ${\bf U}$ and ${\bf V}$ will also converge (say if they are not uniquely identifiable), and optimization may stuck at local optima.
+\par This alternating minimization for low-rank matrix factorization is called \emph{alternating least squares} (ALS). Despite the drawbacks mentioned above, alternating least squares is very efficiently solvable. The fact that in each iteration we are dealing with a convex problem takes part of the reason. More importantly, ALS decompose $f$ into subproblems (convex), each of which can be solved independently. 
+\par Consider ${\bf U}$ is fixed, then $f$ is decomposed into subproblems for columns of ${\bf V}$:
+\begin{equation*}
+		f({\bf U}, {\bf V})= \sum_{j}\left[\sum_{i:(i,j)\in \mathcal{I}} (a_{ij} - \langle \bm{u}_i,\bm{v}_j \rangle)^2\right] = \sum_{j} f_j({\bf U}, \bm{v}_j)
+\end{equation*}
+where $f_j({\bf U}, \bm{v}_j)$'s are independently solvable least square problems for columns $\bm{v}_j$'s of ${\bf V}$. By symmetry, this also holds for fixing ${\bf V}$ and optimizing ${\bf U}$. Note that columns of ${\bf V}$ ($\bm{v}_j \in \mathbb{R}^k$) are representations for each item, while rows of ${\bf U}$ ($\bm{u}_i \in \mathbb{R}^k$) are representations for each user. 
+\par Typically, we favor solutions (${\bf U,V}$) with small Frobenius norm. So we add (squared) Frobenius norm regularizer to regularize matrix factor ${\bf U,V}$:
+\begin{equation*}
+	\Omega({\bf U,V})=\|{\bf U}\|_F^2 + \|{\bf V}\|_F^2
+\end{equation*}
+then we optimize a regularized problem
+\begin{equation*}
+	\min_{{\bf U,V}} \left(f({\bf U,V})+\mu\Omega({\bf U,V})\right),\ \text{for some }\mu>0
+\end{equation*}
+Since the (squared) Frobenius norm also decomposes, adding regularization does not change the separability structure of the problem.
+\par In a word, what ALS for collaborative filtering is doing is to alternatively do the following:
+\begin{itemize}
+	\item Given low-dimensional representations for items (${\bf V}$ fixed), compute for each user independently the best representation, i.e. optimize rows of ${\bf U}$.
+	\item Given low-dimensional representations for users (${\bf U}$ fixed), compute for each item independently the best representation, i.e. optimize columns of ${\bf V}$.
+\end{itemize}
+All optimization problems are least-square problems of small dimension ($\bm{u}_i,\bm{v}_j\in \mathbb{R}^k$).
+
+\subsection{Convex Relaxation}
+In this section, we exploit the other direction for solving the original non-convex optimization problem. We start by introducing another useful matrix norm, the nuclear norm.
+\begin{definition}
+	(Nuclear norm) The nuclear norm of a matrix ${\bf A}$ is defined as the sum of its singular values
+	\begin{equation*}
+		\|{\bf A}\|_*=\sum_{i}\sigma_i,\quad \sigma_i:\text{ singular values of }{\bf A}
+	\end{equation*}
+\end{definition}
+Recall the definition of Frobenius norm $\|{\bf A}\|_F=\sqrt{\sum_{i}\sigma_i^2}$, then if we define $\bm{\sigma}({\bf A})=(\sigma_1,\dots,\sigma_n)$, we have
+\begin{equation*}
+	\|{\bf A}\|_F = \|\bm{\sigma}({\bf A})\|_2,\ \|{\bf A}\|_*=\|\bm{\sigma}({\bf A})\|_1
+\end{equation*}
+For a diagonal matrix ${\bf D}$, $\|{\bf D}\|_*=\text{Tr}({\bf D})$. For matrix ${\bf A}\in\mathbb{R}^{m\times n}$ of rank $r$, the following two inequalities describe the relation between the matrix norms we have met so far:
+\begin{align*}
+	&\|{\bf A}\|_2\leq \|{\bf A}\|_F\leq \sqrt{r}\|{\bf A}\|_2\\
+	&\|{\bf A}\|_F\leq \|{\bf A}\|_*\leq \sqrt{r}\|{\bf A}\|_F
+\end{align*} 
+With the nuclear norm, what people usually look at in matrix reconstruction are the following 2 types of problems. The first one is exact reconstruction (given observed entries indicated by Boolean matrix ${\bf G}$):
+\begin{equation*}
+	\min_{{\bf B}}\|{\bf B}\|_*\quad \text{subject to }\|{\bf A} - {\bf B}\|_{\bf G}=0
+\end{equation*}
+Think from another direction, we get the approximate reconstruction problem:
+\begin{equation*}
+\min_{{\bf B}}\|{\bf A} - {\bf B}\|_{\bf G}^2 \quad \text{s.t. }\|{\bf B}\|_*\leq r
+\end{equation*}
+the Lagrangian formulation of which is
+\begin{equation*}
+\min_{{\bf B}}\left[\frac{1}{2\tau}\|{\bf A} - {\bf B}\|_{\bf G}^2 +\|{\bf B}\|_*\right]
+\end{equation*}
+The reason to introduce the nuclear norm is that under certain conditions, the constraint on the nuclear norm is the convex relaxation of the constraint on the rank. Specifically, it's not difficult to see that
+\begin{equation*}
+	rank({\bf B})\geq \|{\bf B}\|_*,\quad \text{for }\|{\bf B}\|_2\leq 1
+\end{equation*}
+where $\|\cdot\|_2$ is the spectral norm. This means that, for $\|{\bf B}\|_2\leq 1$, the nuclear norm is a lower bound of the rank (in face it's the tightest convex lower bound (Fazel 2002)). To make use of this property of the nuclear norm, we can properly rescale the original data (rating matrix ${\bf A}$) to make its approximation ${\bf B}$ very likely to satisfy $\|{\bf B}\|_2\leq 1$.
+\par Now assuming that $\|{\bf B}\|_2\leq 1$ is always satisfied, we get the follow convex relaxation to the original matrix completion problem (\ref{eq_3_opt_partial}):
+\begin{equation*}
+	\min_{{\bf B}\in \mathcal{P}_k}\|{\bf A}-{\bf B}\|^2_G,\ \mathcal{P}_k:=\{{\bf B}:\|{\bf B}\|_*\leq k\}
+\end{equation*}
+where
+\begin{equation*}
+	\mathcal{P}_k\supseteq \mathcal{Q}_k:=\{{\bf B}:rank({\bf B})\leq k\}
+\end{equation*}
+By relaxing the constraint to a larger but convex one, we keep all possible solutions of the original problem and make the problem much easier to solve. However, note that we also add some additional possible solutions ($rank({\bf A})\geq k$), in another word, we are optimizing over a larger set. For a convex relaxation problem, the final step is usually rounding or projecting the solution back to the original domain, in our case, the domain of rank constraint. However, for this matrix completion problem, there is actually no such a prior knowledge about constraints on the rank of our approximation, so the solution given by the relaxed problem is also acceptable.
+\par \emph{SVD Shrinkage Iterations} is an algorithm for solving matrix completion problems involving the nuclear norm. We start by introducing a fundamental result (\emph{SVD Thresholding}), where we try to solve the following Lagrangian involving the nuclear norm (here ${\bf A}$ is an arbitrary matrix)
+\begin{equation}\label{eq_3_svdthres}
+	{\bf B}^*=\text{shrink}_{\tau}({\bf A}):=\mathop{\arg\min}_{{\bf B}}\{\frac{1}{2}\|{\bf A}-{\bf B}\|^2_F+\tau\|{\bf B}\|_*\}
+\end{equation}
+then with ${\bf A}={\bf UDV}^T$, ${\bf D}=\text{diag}(\sigma_i)$, it holds that
+\begin{equation*}
+	{\bf B}^* = {\bf UD}_{\tau}{\bf V}^T,\ {\bf D}_{\tau}=\text{diag}(\max\{0, \sigma_i-\tau\})
+\end{equation*}
+Note that all singular values are reduced by at most $\tau$. Recall that we have assumption that $\|{\bf B}\|_2\leq 1$, so in our setting we should have $\tau \leq 1$.
+\par Recall that solving a Lagrangian is almost equivalent to solving a constrained optimization problem, and in (\ref{eq_3_svdthres}) it's a constraint on the nuclear norm. There is a strong connection between requiring constrained rank and constrained nuclear norm. According to Eckart-Young Theorem (Theorem \ref{thm_1_EY}), the optimal low-rank approximation is achieved by "throwing away" the small singular values, while in SVD thresholding, we reduce all singular values by $\tau$. For structured data (matrix ${\bf A}$ that we believe to be low-rank),  it usually shares a similar spectrum of singular values as in Figure \ref{fig_2_2}, which means by choosing a small $\tau$ SVD thresholding can zero out most of the small $\sigma_i$ while keeping the principal $\sigma_i$'s almost unchanged. From this we can see that, the rank constraint and nuclear norm constraint often yield the same solution, and they can both been computed by SVD.
+\par With SVD thresholding, the iteration algorithm is then simply a combination of SVD thresholding and an extra projection. Define the projection operator with regard to index set $\mathcal{I}$ as
+\begin{equation*}
+	\Pi({\bf X})=\begin{cases}
+	x_{ij} & (i,j)\in \mathcal{I}\\
+	0 & \text{otherwise}
+	\end{cases}
+\end{equation*} 
+The iteration algorithm, initialized with ${\bf B}_0=0$ is then given by
+\begin{equation}\label{eq_3_svdsi}
+	{\bf B}_{t+1} = {\bf B}_t + \eta_t\Pi({\bf A}-\text{shrink}_{\tau}({\bf B}_t))
+\end{equation}
+where $\eta_t>0$ is the learning rate or step size for step $t$ (learning rate sequence). Here in each step, $\text{shrink}_{\tau}({\bf B}_t)$ acts as an approximation to ${\bf A}$. Think about the second term as a difference between ${\bf A}$ and the current approximation, then by iteratively apply (\ref{eq_3_svdsi}), we get a better and better approximation to ${\bf A}$. 
+\par Note that since the second term only supports on $\mathcal{I}$, the ${\bf B}_t$ will always be a sequence of sparse matrices for ${\bf B}_0=0$, and therefore is efficient (in terms of, say, storage). This is important since the size of ${\bf B}$ can be large. In the ALS, this problem is handled by reparametrizing ${\bf B}$ into multiplication of two small matrices, and here we make ${\bf B}_t$'s sparse. It can be shown that, with appropriate choice of step sizes, ${\bf B}^* = \lim_{t\rightarrow\infty}\text{shrink}_{\tau}({\bf B}_t)$ satisfies
+\begin{equation}\label{eq_3_svd_solu}
+	{\bf B}^* =\mathop{\arg\min}_{{\bf B}}\{\|{\bf B}\|_*+\frac{1}{2\tau}\|{\bf B}\|^2_F\},\ \text{s.t. }\Pi({\bf A}-{\bf B})=\bm{0}
+\end{equation}
+which means that ${\bf B}^*$ will agree with ${\bf A}$ on all observed entries. 
+\par From (\ref{eq_3_svd_solu}) we can see that for large enough $\tau$ (we know that at least in the setting of our problem, the $\tau$ cannot be arbitrarily large since we have $\|{\bf B}\|_2\leq 1$) one finds a minimal nuclear-norm approximation to ${\bf A}$ that agrees on all observed entries. Note that the objective function is kind of different from the original one, where we try to minimize $\|{\bf A}-{\bf B}\|_{\mathcal{I}}^2$, while here the objective is a regularizer. However, (\ref{eq_3_svd_solu}) says that ${\bf B}^*$ will agree with ${\bf A}$ on all observed entries, and for the unobserved entries of ${\bf B}^*$ they are optimal in terms of a hybrid norm objective, which is exactly what we are looking for. Besides, by modifying $\Pi$ this analysis of SVD shrinkage iterations can be extended to an approximating setting, where $\|{\bf A}-{\bf B}\|_{\mathcal{I}}$ is not zero but minimized under certain conditions.
+\par Despite that (\ref{eq_3_svd_solu}) gives a solution that can do exact recovery, a natural question raises is whether we can get any generalization guarantees on ${\bf B}$ at unobserved positions of ${\bf A^*}$, assuming that there is actually a latent ground truth matrix ${\bf A}^*$ s.t. $\Pi({\bf A}^*)={\bf A}$. Surprisingly, but not trivially, the answer is yes for
+\begin{equation}\label{eq_3_gen}
+	{\bf B}^*=\mathop{\arg \min}_{{\bf B}} \{\|{\bf B}\|_*\},\ \text{s.t. } \Pi({\bf A}-{\bf B})=\bm{0}
+\end{equation}
+This is justified by the follow theorem:
+\begin{theorem}\label{thm_3_gen_guarantee}
+	Exact reconstruction of rank k matrix ${\bf A}^*$ w.h.p., if it is strongly incoherent (parameter $\mu$, spread of singular values), if
+	\begin{equation*}
+		|\mathcal{I}|\geq C\mu^4k^2n(\log n)^2\in \tilde{{O}}(n),\ \text{typically }\mu=O(\sqrt{n})
+	\end{equation*}
+\end{theorem}
+This theorem shows that with $|\mathcal{I}|\geq \tilde{{O}}(n)\ (\ll n^2 \text{ for large } n)$, under certain conditions, ${\bf B}^*$ defined in (\ref{eq_3_gen}) can do exact reconstruction of ${\bf A}^*$ (on all entries) w.h.p., which to some degree explains why the nuclear norm minimization works well in practice.  
+
+\end{document}

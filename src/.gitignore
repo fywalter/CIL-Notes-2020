@@ -2,6 +2,7 @@
 *.out
 *.synctex.gz
 *.log
-book-template.pdf
-book-template.toc
+*.toc
+# only include the book-template.pdf at root level ./ (not at ./src/)
+*.pdf
 
