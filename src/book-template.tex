@@ -2476,7 +2476,7 @@ This convex optimization problem can be solved efficiently, and under suitable c
 We conclude this chapter with some supplementary materials from one of my favorite courses at ETH, Mathematics of Data Science by Prof. Afonso S. Bandeira. This subsection is again totally out of the scope of CIL, but since it is rather relevant I put it here. Feel free to skip!
 \par Assuming that ${\bf x}$ has a sparse coding under a overcomplete dictionary ${\bf U}$, in order for (\ref{eq_9_L1}) to be a good procedure for sparse recovery (\ref{eq_9_L0}) we need two things:
 \begin{enumerate}
-	\item the solution of (\ref{eq_9_L1}) is meaningful for (\ref{eq_9_L0}) (hopefully the be the same)
+	\item the solution of (\ref{eq_9_L1}) is meaningful for (\ref{eq_9_L0}) (hopefully to be the same)
 	\item the solution of (\ref{eq_9_L1}) can be efficiently found.
 \end{enumerate}
 We first take a look at the second one. Let $\bm{\omega}^+$ and $\bm{\omega}^-$ be the positive part and the symmetric negative part of ${\bf z}$, meaning that ${\bf z}=\bm{\omega}^+ - \bm{\omega}^-,\ \bm{\omega}^+\geq {\bf 0},\ \bm{\omega}^-\geq {\bf 0}$ and, for each $i$, either $\omega_i^+$ or $\omega_i^-$ is zero. In this case, we have
@@ -2535,7 +2535,7 @@ Given a dictionary ${\bf U}$ with unit-length atoms and worst-case coherence $\m
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \chapter{Dictionary Learning}
-In the last chapter, we talked about finding better representation for data in terms of sparsity, where for a signal its representation can be in a high dimensional space but with only a few entries non-zero. In this chapter, we will explore the following idea: instead of manually choosing bases like wavelets or Fourier basis, can we somehow learn a good dictionary based on some given data? Our discussion will start with a brief introduction to Compressive sensing, which as mentioned in section \ref{sec_9_comp_sens} belongs to this context of sparseness. We will then talk about how to conduct dictionary learning in terms of matrix factorization, specifically with K-SVD algorithm.
+In the last chapter, we talked about finding better representations for data in terms of sparsity, where for a signal its representation can be in a high dimensional space but with only a few entries non-zero. In this chapter, we will explore the following idea: instead of manually choosing bases like wavelets or Fourier basis, can we somehow learn a good dictionary based on some given data? Our discussion will start with a brief introduction to Compressive sensing, which as mentioned in section \ref{sec_9_comp_sens} belongs to this context of sparseness. We will then talk about how to conduct dictionary learning in terms of matrix factorization, specifically with K-SVD algorithm.
 \section{Compressive Sensing}
 Recall our assumption that many types of signal/data are sparse in certain basis. What we have done in the last chapter is to transform such signals with proper ${\bf U}$, and then we can efficiently transmit data in their sparse coding given both the sender and receiver having the same dictionary. This means that when we take a picture, our camera first measure all the pixels, but after an appropriate change of basis we ``throw away'' most of them. This sounds rather wasteful. The natural question raises is: if only a few degree of freedom are needed for representing the data, why not measuring the data in a more efficient way, where we take considerably less measurements than the number of pixels. 
 \par This idea is really at the heart of compressive sensing, and it is of great importance in the sense that it decreases acquisition time, power assumption and required storage. For an example, think about photoshooting in space. It saves memory and battery power if fewer measurements is required for taking a picture. For another important application for compressive sensing, high-resolution MRI images require patients to be perfectly still during the scanning. Decreasing the number of measurements with compressive sensing can significantly reduce the scanning time saving the energy consumption and causing less damage to the patients.
@@ -2658,27 +2658,27 @@ Now do the same for the second problem:
 	\label{eq_10_1st_od_p2}&\frac{\partial L_2}{\partial x}=g'(x)+\lambda_2f'(x)=0\Rightarrow g'(x)=-\lambda_2f'(x).
 \end{align}
 We see that if $\lambda_1=\frac{1}{\lambda_2}$, (\ref{eq_10_1st_od_p1}) and (\ref{eq_10_1st_od_p2}) are the same and the two problem becomes equivalent. 
-\par Assume that we can update the coding matrix via \ref{eq_10_coding_pblm}, the next to do is to determine the update rule for the dictionary. Recall the objective for dictionary updating:
+\par Assume that we can update the coding matrix via \ref{eq_10_coding_pblm}, the next thing to do is to determine the update rule for the dictionary. Recall the objective for dictionary updating:
 \begin{equation*}
 	{\bf U}^{t+1}\in \mathop{\arg\min}_{\bf U} \|{\bf X}-{\bf U}{\bf Z}^{t+1}\|_F^2,\ {\rm s.t. }\ \|{\bf u}_l\|_2=1\ \forall l=1,\dots,L.
 \end{equation*}
 The residual is no longer separable in atoms (columns of ${\bf U}$). This agrees with the observation that the choice of one atom can affect the others at least in this learning setting. The idea is then to update one atom at a time: for all $l$:
 \begin{enumerate}
-	\item set ${\bf U}=[{\bf u}_1^t\cdots {\bf u}_l^t\cdots {\bf u}_L^t]$, i.e. fix all atoms except ${\bf u}_l$;
+	\item set ${\bf U}=[{\bf u}_1^t\cdots {\bf u}_l\cdots {\bf u}_L^t]$, i.e. fix all atoms except ${\bf u}_l$;
 	\item isolate/compute ${\bf R}_l^t$, the residual that is independent from atom ${\bf u}_l$;
 	\item find ${\bf u}_l^*$ that minimizes ${\bf R}_l^t$ subject to $\|{\bf u}_l^*\|_2=1$.
 \end{enumerate}
 Formally, in the first and the second step, we compute
 \begin{align}
-	&\|{\bf X}-[{\bf u}_1^t\cdots {\bf u}_l^t\cdots {\bf u}_L^t]\cdot {\bf Z}^{t+1}\|_F^2\notag\\
-	=&\left\|{\bf X}-\left(\sum_{n\neq l}{\bf u}_n^t({\bf z}_n^{t+1})^T + {\bf u}_l^t({\bf z}_l^{t+1})^T\right)\right\|_F^2\notag\\
-	\label{eq_10_dic_SVD_obj}=&\left\|{\bf R}_l^t-{\bf u}_l^t({\bf z}_l^{t+1})^T\right\|_F^2,
+	&\|{\bf X}-[{\bf u}_1^t\cdots {\bf u}_l\cdots {\bf u}_L^t]\cdot {\bf Z}^{t+1}\|_F^2\notag\\
+	=&\left\|{\bf X}-\left(\sum_{n\neq l}{\bf u}_n^t({\bf z}_n^{t+1})^T + {\bf u}_l({\bf z}_l^{t+1})^T\right)\right\|_F^2\notag\\
+	\label{eq_10_dic_SVD_obj}=&\left\|{\bf R}_l^t-{\bf u}_l({\bf z}_l^{t+1})^T\right\|_F^2,
 \end{align}
-where ${\bf z}_n^T$ is the $n$-th row of ${\bf Z}$. Note that it's not clear if a specific row of ${\bf Z}$ is sparse (consider that there are some ``popular'' atoms). From (\ref{eq_10_dic_SVD_obj}) we see again we fall into a matrix factorization problem, where we are approximating ${\bf R}_l^t$ with some rank-1 matrix ${\bf u}_l^t({\bf z}_l^{t+1})^T$. The optimal solution is given by SVD of ${\bf R}_l^t$:
+where ${\bf z}_n^T$ is the $n$-th row of ${\bf Z}$. Note that it's not clear if a specific row of ${\bf Z}$ is sparse (consider that there are some ``popular'' atoms). From (\ref{eq_10_dic_SVD_obj}) we see again we fall into a matrix factorization problem, where we are approximating ${\bf R}_l^t$ with some rank-1 matrix ${\bf u}_l ({\bf z}_l^{t+1})^T$. The optimal solution is given by SVD of ${\bf R}_l^t$:
 \begin{equation*}
 	{\bf R}_l^t=\tilde{\bf U}{\bf \Sigma}\tilde{\bf V}=\sum_i \sigma_i \tilde{\bf u}_i\tilde{\bf v}_i^T,\ {\bf u}_l^*=\tilde{\bf u}_1,\ ({\bf z}_l^{*})^T = \sigma_1\tilde{\bf v}_1^T,
 \end{equation*}
-where we see $\|{\bf u}_l^*\|_2=1$ is naturally satisfied. Recall that in the greedy setting, we are going to update ${\bf U}$ with fixed ${\bf Z}$. However, as suggested by K-SVD, it better not to be too greedy, i.e. we also update the $l$-th row of ${\bf Z}$ with $({\bf z}_l^{*})^T = \sigma_i\tilde{\bf v}_1^T$. One reason for this is that being too greedy will stuck the learning process at local minimums, and another is from that the atom determined by SVD also gives some insight about a good code under ${\bf u}_l^*$. This update is known as approximate K-SVD dictionary update. The name suggests some similarities with K-means algorithm, where in K-means we update $K$ cluster centers with the mean of points assigned to it, while in K-SVD we update K (or L in our notation) atoms with SVD. The actual K-SVD update is a little bit different from the things we have discussed. Let's first look at the algorithm:
+where we see $\|{\bf u}_l^*\|_2=1$ is naturally satisfied. Recall that in the greedy setting, we are going to update ${\bf U}$ with fixed ${\bf Z}$. However, as suggested by K-SVD, it better not to be too greedy, i.e. we also update the $l$-th row of ${\bf Z}$ with $({\bf z}_l^{*})^T = \sigma_i\tilde{\bf v}_1^T$. One reason for this is that being too greedy will get the learning process stuck at local minimums, and another is from that the atom determined by SVD also gives some insight about a good code under ${\bf u}_l^*$. This update is known as approximate K-SVD dictionary update. The name suggests some similarities with K-means algorithm, where in K-means we update $K$ cluster centers with the mean of points assigned to it, while in K-SVD we update K (or L in our notation) atoms with SVD. The actual K-SVD update is a little bit different from the things we have discussed. Let's first look at the algorithm:
 \begin{algorithm}
 	\caption{Approximate K-SVD Dictionary Update}
 	\begin{algorithmic}[1]
