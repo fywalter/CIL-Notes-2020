@@ -841,7 +841,7 @@ The log-likelihood, therefore, is
 \end{equation}
 where $u_{zi}\geq 0$ and $v_{zj}\geq 0$ are model parameters. Since they are probability distributions, we further require constraints:
 \begin{equation*}
-	\sum_z u_{zi}=1\ (\forall i),\ \sum_z v_{zj}=1\ (\forall j)
+	\sum_z u_{zi}=1\ (\forall i),\ \sum_j v_{zj}=1\ (\forall z)
 \end{equation*}
 \par A natural attempt is to optimize (\ref{eq_4_log_l}) via gradient descent, but the sum of probabilities inside the log can cause problem. In the following, we will address the problem from another view, namely the Expectation Maximization, which iteratively optimizes a lower bound of the original objective function. Since it's a very useful algorithm and is closely related to another topic we will meet in the sequel, the k-means algorithm, we will introduce more of EM in details in the next section, while it might be out of the scope of this course.
 \subsection{Expectation Maximization for pLSA}
@@ -864,7 +864,7 @@ Optimizing over $q$ for fixed $u_{zi},v_{zj}$ maximizes the lower bound (\textbf
 \end{equation*}
 Apply the first order optimality condition, we get
 \begin{equation*}
-	\lambda + \sum_{z} (\log u_{zi}v_{zj} - \log q_{zij} -1) \overset{set}{=}0
+	\lambda + (\log u_{zi}v_{zj} - \log q_{zij} -1) \overset{set}{=}0
 \end{equation*}
 with normalization constraint we get
 \begin{equation*}
