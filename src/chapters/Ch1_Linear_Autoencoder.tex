@@ -131,7 +131,7 @@ which concludes the proof for spectral norm.
 \end{equation*}
 all we have to prove is that given any rank $k$ reconstruction $B_k=XY^T$, where $X,Y\in \mathbb{R}^{m\times k}$, it satisfies
 \begin{equation*}
-     \|A-A_k\| =\sum_{i=k+1}^{n}\sigma_i^2\leq \|A-B_k\|
+     \|A-A_k\|_F^2 =\sum_{i=k+1}^{n}\sigma_i^2\leq \|A-B_k\|_F^2
 \end{equation*}
 \par Assume $A=A'+A''$. $A'_k$ and $A''_k$ are the corresponding rank $k$ reconstructions given by SVD of $A'$ and $A''$ respectively. Then $\forall 1\leq i,j\leq n$
 \begin{align*}
@@ -149,6 +149,11 @@ Therefore,
     \|A-B_k\|_F^2 = \sum_{i=1}^{n}\sigma_i(A-B_k)^2\geq \sum_{i=k+1}^{n}\sigma_i(A)^2 = \|A-A_k\|_F^2
 \end{equation*}
 as required.
+
+\textit{
+Alternative proof for Frobenius norm: reduce to $\min_{\rank M \leq k} \|M-\Sigma\|_F^2$, then argue that we can assume w.l.o.g $M$ has zero non-diagonal coefficients, and conclude.
+}
+
 \end{proof}
 \section{Singular Value Decomposition}
 Any $m\times n$ matrix $A$ can be decomposed into
