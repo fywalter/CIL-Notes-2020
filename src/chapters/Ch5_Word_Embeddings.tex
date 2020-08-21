@@ -3,11 +3,12 @@
 \begin{document}
 
 \chapter{Word Embeddings}
-From this chapter on we will slowly move towards deep learning and neural stuff. As a first step, we will focus on the embeddings, specifically the embeddings of words. Our discussion will mainly focus on two popular algorithms, namely the skip-gram model and the GloVe, both of which, to some degree, find a mapping from the original discrete word space (recall the 1-hot representation we have seen) to a continues vector space with much lower dimension which keeps the semantic information. We will see the embeddings found by these methods have some interesting properties, and show surprising applications in fields like machine translation.
+From this chapter on we will slowly move towards deep learning and neural stuff. As a first step, we will focus on embeddings, specifically the embeddings of words. Our discussion will mainly focus on two popular algorithms, namely the skip-gram model and the GloVe, both of which, to some degree, find a mapping from the original discrete word space (recall the 1-hot representation we have seen) to a continuous vector space with much lower dimension, in a way that preserves semantic information. We will see the embeddings found by these methods have some interesting properties, and show surprising applications in fields like machine translation.
+
 \section{Motivation: Word Embeddings}
-Word embedding is a conceptually easy way to motivate the idea of embeddings. To understand natural languages, we usually have to deal with their atomic units of meaning, which are usually symbols like words or phrases. It's similar for music analysis, where in early times we regard each song as a black box and use techniques like collaborate filtering to do things. However, these symbols (words, phrase, or name of songs) rarely carry their meanings "on them", and sometimes we want to open the black boxes by finding representations that encodes semantics or meaning (like acoustic models for music). 
-\par For words understanding, it is widely accepted that the meaning of a word is in its use in that language (Wittgenstein, 1953). It is not difficult to see this by thinking of a monolingual dictionary, where we use easy words to explain the hard ones by showing their usages. Motivated by this observation, our goal is then to find semantic representations of words, or symbols, that can say something about the relationship between different symbols given examples of word uses in a corpus (word occurrences). The most straightforward way to do this is to embed the symbols in a vector space, which is the most basic type of representation, and the structure (e.g. angles, distances) of the vector space should relate to word meanings. In another word, the points that are close in that vector space should correspond to words with similar meanings. For example, automobile and car are not similar in terms of lexicology but should be close in a desired embedding vector space. Although we might lose some crispness for the words, we benefit a lot by moving from a discrete space to a continuous space since that it allows us to use all methods for analyzing continuous representations including the Deep Learning, where the first step is always to find a representation for the original data. 
-\par Now the problem is left with how can we create such vectors. It might be tempting to do it in a supervised manner, but in general cases we have no access to the "correct" embeddings and have even no ideas how should they look like. This suggest an unsupervised direction, and we need a way to qualify our models. Recall the linear autoencoder in Chapter 1, where we used a reconstructive objective, for word embeddings we can instead make a prediction game, as suggested by the observation that word meanings are in their usages. 
+Word embedding is a conceptually easy way to motivate the idea of embeddings. To understand natural languages, we usually have to deal with their atomic units of meaning, which are usually symbols like words or phrases. It's similar for music analysis, where in early times we regard each song as a black box and use techniques like collaborate filtering to do things. However, these symbols (words, phrase, or name of songs) rarely carry their meanings "on their own", and sometimes we want to open the black box to finding representations that encodes semantics or meaning (like acoustic models for music). 
+\par For word understanding, it is widely accepted that the meaning of a word resides in its usage in the language (Wittgenstein, 1953). It is not difficult to see this by thinking of a monolingual dictionary, where we use easy words to explain the hard ones by showing their usages. Motivated by this observation, our goal is then to find semantic representations of words, or symbols, that can say something about the relationship between different symbols, given examples of word uses in a corpus (word occurrences). The most straightforward way to do this is to embed the symbols in a vector space, which is the most basic type of representation, and the structure of the embeddings in the vector space (e.g. angles, distances) should relate to the words' meanings. In other words, the points that are close in that vector space should correspond to words with similar meanings. For example, automobile and car are not similar in terms of lexicology but should be close in a desired embedding vector space. Although we might lose some crispness for the words, we benefit a lot by moving from a discrete space to a continuous space , since it allows us to use all methods for analyzing continuous representations including The Deep Learning, where the first step is always to find a representation for the original data. 
+\par Now the problem is left with how can we create such vectors. It might be tempting to do so in a supervised manner, but in general cases we have no access to the "correct" embeddings and have no idea how they should even look like. This suggests an unsupervised approach, and we need a way to quantify the quality of our models. Recall the linear autoencoder in Chapter 1, where we used a reconstructive objective; for word embeddings we can instead use a prediction game, as suggested by the observation that word meanings reside in their usages. 
 \begin{figure}[h] 
 	\centering 
 	\includegraphics[width=8cm]{fig_5_1.jpg} 
@@ -16,7 +17,7 @@ Word embedding is a conceptually easy way to motivate the idea of embeddings. To
 \begin{figure}[h] 
 	\centering 
 	\includegraphics[width=5cm]{fig_5_2.jpg} 
-	\caption{The probabilities of some words given word "king". It shows that "castle", "queen", and "throne" appear frequently near "king", and these words are therefore believed to be closely related to "king". We believe that the distribution of co-occurring words itself to some degree determines the lexical semantics}\label{fig_5_2}
+	\caption{The probabilities of some words given word "king". It shows that "castle", "queen", and "throne" appear frequently near "king", and these words are therefore believed to be closely related to "king". We believe that the distribution of co-occurring words determines the lexical semantics to some degree.}\label{fig_5_2}
 \end{figure}
 \par Specifically, we want to predict context words given an "active" word, which is known as the Skip-gram Model. The skip-gram model predicts the probability that $w$ occurs in context window of $w'$: $p_{\theta}(w|w')$, which captures statistic dependencies between words, as illustrated in Figure \ref{fig_5_1}. The skip-gram model, as an instance of Distributional Context Models, or Distributional Semantics Models, assumes that the distribution of co-occurring words determines lexical semantics (Figure \ref{fig_5_2}).
 \section{Basic Model}
@@ -24,31 +25,34 @@ The objective function, or the predictive score, of our model is naturally chose
 \begin{equation}\label{eq_5_log_l}
 	\mathcal{L}(\theta;{\bf w})=\sum_{t=1}^{T}\sum_{\Delta \in \mathcal{I}}\log p_{\theta}(w^{(t+\Delta)}|w^{(t)})
 \end{equation} 
-where $\theta$ represents model parameters and defines the conditional probability distribution over the vocabulary given some words from the vocabulary; ${\bf w}=\{w^{(1)},\dots,w^{(T)}\}$ is the sequence of words and is implicitly padded to handle border cases; $\mathcal{I}=\{-R,\dots,-1,1,\dots,R\}$ defines a window of offsets, where we want to make prediction. Note that alternatively, we can also consider word pairs within the same sentence rather than in some windows.
+where $\theta$ represents model parameters and defines the conditional probability distribution over the vocabulary given some words from the vocabulary; ${\bf w}=\{w^{(1)},\dots,w^{(T)}\}$ is the sequence of words and is implicitly padded to handle border cases; $\mathcal{I}=\{-R,\dots,-1,1,\dots,R\}$ defines a window of offsets, where we want to make prediction. Note that alternatively, we can also consider word-co-ocurrences within the same sentence rather than using some window-size.
 \begin{remark}
-	In the setting of windows, we neglect $p_{\theta}(w|w)$ for word $w$, i.e. $0\notin \mathcal{I}$, because it seems more or less meaningless to consider the word given itself. Although, it does happen that a word appears multiple times within a window, the model described above works out well in practice.
+	When considering word-pairs using windows, we neglect $p_{\theta}(w|w)$ for word $w$, i.e. $0\notin \mathcal{I}$, because it seems more or less meaningless to consider the word given itself. Although, it does happen that a word appears multiple times within a window, the model described above works out well in practice.
 \end{remark}
 \par Then we can just perform a maximum likelihood estimation to solve or optimal model parameters $\hat{\theta}$:
 \begin{equation*}
 	\hat{\theta} = \mathop{\arg\max}_{\theta}\mathcal{L}(\theta;{\bf w})
 \end{equation*}
-which prefers model that assigns high probability to observed context. Now the remaining question is: how should we define an appropriate model $p_{\theta}(w|w')$? 
+which prefers models that assign high probability to observed context. Now the remaining question is: how should we define an appropriate model $p_{\theta}(w|w')$? 
 \par Recall that we want to find a latent vector representation (embedding) of words. Specifically, our goal is to find the following mapping:
 \begin{equation*}
 	w \mapsto ({\bf x}_w,b_w)\in \mathbb{R}^{d+1},\quad (\text{vector }+\text{ bias})
 \end{equation*}
-where for natural languages $d$ is usually chosen to be around $500$, and we will see the advantages to separate the bias term shortly. We hope this vector representation captures the semantics of words, as illustrated in Figure \ref{fig_5_3}. Given 2 vectors, the inner product is one of the simplest thing we can apply and has a nice interpretation in the sense of measuring similarities. We can therefore define the a log-bilinear model that is given by
+where for natural languages $d$ is usually chosen to be around $500$, and we will see the advantages to separate the bias term shortly. We hope this vector representation captures the semantics of words, as illustrated in Figure \ref{fig_5_3}. Given two vectors, the inner product is one of the simplest thing we can apply, and it has a nice interpretation in the sense of measuring similarities. We can therefore define a log-bilinear model by
 \begin{equation}\label{eq_5_log_bi}
 	\log p_{\theta}(w|w')=\langle {\bf x}_w,{\bf x}_{w'}\rangle + b_w + {\rm const}
 \end{equation}
-where we use a symmetric bilinear form to fit the log-probabilities, but as we will see later, we can break the symmetry by introducing a different embedding $y_{w'}$ for the "active" word and use $\langle x_w,y_{w'}\rangle$ instead. Recall that in matrix factorization, we often fit the data directly with the inner products, here everything is in a log scale. The bias term gives some words more importance regardless of the conditional word and therefore to some degree handles different word frequency. The last term is a normalization constant. Then we see the log-bilinear model has the following effects:
+Here we used a symmetric bilinear form to fit the log-probabilities, but as we will see later, we can break the symmetry by introducing a different embedding $y_{w'}$ for the "active" word and use $\langle x_w,y_{w'}\rangle$ instead. Recall that in matrix factorization, we often fit the data directly with the inner products, here everything is in a log scale. The bias term gives some words more importance regardless of the conditional word and therefore to some degree represents word frequency. The last term is a normalization constant. Then we see the log-bilinear model has the following effects:
 \begin{itemize}
 	\item the unspecific effect: $b_w \uparrow\ \Longrightarrow p_{\theta}(w|w')\uparrow \forall w'$,
 	\item the specific effect: $\angle({\bf x}_w,{\bf x}_{w'})\downarrow\ \Longrightarrow p_{\theta}(w|w')\uparrow$.
 \end{itemize}
 Therefore we can say that in some sense the inner products model the interactions between words, and the biases describe the marginals of each word.
 \begin{remark}
-	One might ask, if we embed each word with only one vector, will this be a reasonable semantic representation for words with multiple (especially very different) meanings? For example, the word "cloud" has one meaning that is closely related to "sky", as in Figure \ref{fig_5_3}, but also has another meaning which should be closer to "computation". It turns out that in the representation learned by the model we described, the words has close meaning to "sky", as well as words has close meaning to "computation", form a small, i.e. low-dimensional, affine subspace, and the embedding for "cloud" has large inner products with both these two affine subspaces but much smaller for others. Still, multiple representation for a single word is a possible direction for word embedding, but we have to keep in mind that we have no idea what is the right thing to do.
+	One might ask, if we embed each word with only one vector, will this be a reasonable semantic representation for words with multiple (especially very different) meanings? For example, the word "cloud" has one meaning that is closely related to "sky", as in Figure \ref{fig_5_3}, but also has another meaning which should be closer to "computation". 
+	Now, in the representation learned by the model we described, the set of words with close meaning to "sky" form a small (i.e low-dimensional) affine subspace, and so do the words with close meaning to "computation".
+	It turns out that the embedding for "cloud" has large inner products with both of these two affine subspaces, but much smaller inner products with others subspaces. 
+	Still, handling multiple representation for a single word is a desirable feature for word embedding algorithms, but we have to keep in mind that we have no idea what the right thing to do is.
 \end{remark}
 \begin{figure}[t] 
 	\centering 
@@ -69,7 +73,7 @@ is a partition function preventing naively making everything large. In the follo
 \end{equation*}
 Before we go to the learning algorithms of model parameters, it is worth spending sometime taking another view to understand the role of $b_w$.
 \begin{remark}
-	The bias term $b_w$ also play a role to avoid ${\bf x}_w$ to be too large, which leads to separate modeling of word interactions and marginals. Since in (\ref{eq_5_log_bi}), there is no explicit regularization on the norm of ${\bf x}_w$, then if we want to evaluate the similarity by computing the inner products of word embeddings we need to be more careful. Consider a toy example in $\mathbb{R}^2$, where we have
+	The bias term $b_w$ also plays a role to avoid ${\bf x}_w$ to be too large, which leads to separate modeling of word interactions and marginals. Since in (\ref{eq_5_log_bi}), there is no explicit regularization on the norm of ${\bf x}_w$, then if we want to evaluate the similarity by computing the inner products of word embeddings we need to be more careful. Consider a toy example in $\mathbb{R}^2$, where we have
 	\begin{equation*}
 		{\bf x}_1 =(1, 0),\ {\bf x}_2=(1,0.1),\ {\bf x}_2=(1,10)
 	\end{equation*}
@@ -79,6 +83,7 @@ Before we go to the learning algorithms of model parameters, it is worth spendin
 	\end{equation*}
 	Without a bias term, a model may model different importance of words by assigning embeddings with different length. However, an embedding with larger norm will in general lead to larger inner products in magnitude, which will be problematic for the model interpretability. The introduction of $b_w$ helps relieve this problem, and in this case the $\{{\bf x}_w\}$ are usually self-normalized to 1 after training in practice. (This remark is written based on my memory of how Prof Thomas replied to a similar question of mine during the lecture and might not be correct. If you have an idea of how things should be, please send me an e-mail\footnote{yufeiyu@student.ethz.ch} and leave some comments!)
 \end{remark}
+
 \section{Skip-Gram Model}
 Substituting our log-bilinear model (\ref{eq_5_log_bi}) into the log-likelihood (\ref{eq_5_log_l}) yields
 \begin{align*}
@@ -88,6 +93,7 @@ Substituting our log-bilinear model (\ref{eq_5_log_bi}) into the log-likelihood 
 	&].
 \end{align*} 
 There are two possible modifications to the basic model: one is on the bi-linear term, where we introduce extra distributions to make our model more flexible; the other one is on the partition function since the current version requires evaluation on a term with very large cardinality in every iteration.
+
 \subsection{Modification \# 1: Context vectors}
 As mention before, we can break the symmetry of the bi-linear model by using different embeddings for the conditional word and the words we want to predict. Specifically, we distinguish the output vocabulary $\mathcal{V}$ and the input vocabulary $\mathcal{C}$ and introduce two different embeddings:
 \begin{itemize}
@@ -99,6 +105,7 @@ Thus, we now use a mixed inner product instead:
 	\log p_{\theta}(w|w')=\langle {\bf x}_w,{\bf y}_{w'}\rangle + b_w + {\rm const}.
 \end{equation*}
 By introducing extra parameters we increase the modeling flexibility but also the model dimensionality. We can alternatively apply a simpler model with ${\bf x}_w={\bf y}_w$ for $w\in \mathcal{V}\cap \mathcal{C}$, but it is not very commonly used.
+
 \subsection{Modification \# 2: Objective}
 The hardness of optimizing the log-likelihood objective (\ref{eq_5_log_l}) mainly comes from the partition function. A feasible fix for this problem is to alternatively optimizing other objectives whose learned parameters are also optimal for the original problem, such as
 \begin{itemize}
@@ -108,6 +115,7 @@ The hardness of optimizing the log-likelihood objective (\ref{eq_5_log_l}) mainl
 	\item weighted squared loss (GloVe, Pennigton et al. 2013)
 \end{itemize}
 which is still a active area of research. In the following, we will discuss the negative sampling method, and we will see the objective used in GloVe in section \ref{sec_5_glove}.
+
 \subsection{Negative Sampling}
 \par The negative sampling, which is a simplified version for a more general method: \emph{noise contrastive estimation} and is used in the original skip-gram paper, reduces the estimation to binary classification tasks. The main idea is to sample positive word pairs from observed data and negative pairs from another distribution, and we train our model to distinguish there pairs. Specifically, we first introduce a contrastive, or negative, distribution $p_n(i,j)$ that is the probability to generate negative examples of word pairs $(w_i,w_j)$ and can be defined quite arbitrarily. Then with the following notations:
 \begin{itemize}
@@ -182,6 +190,7 @@ As shown in Figure \ref{fig_5_4}, this weighting function has the following moti
 	\includegraphics[width=5cm]{fig_5_4.jpg} 
 	\caption{The plot of weighting function $f(n)$.}\label{fig_5_4}
 \end{figure}
+
 \subsection{Interlude: Normalized vs. Unnormalized Models}
 \par At this point, it is worth comparing normalized models and unnormalized ones in a more general view. A normalized model in general over state space $\Omega$ takes the form of
 \begin{equation*}
@@ -201,6 +210,7 @@ which is counterbalanced by normalization: we cannot naively make $h(w)$ large f
 	\tilde{p}_{\theta}(w)=\exp[h(w)]
 \end{equation*}
 where the exponential forces non-negativity, and no computation of partition function is required. For unnormalized models, two-sided loss functions are frequently used to make $\tilde{p}_{\theta}(w)$ neither too large nor too small. For example, GloVe uses quadratic loss with log-counts as targets.
+
 \subsection{GloVe Optimization}
 First we show that the optimization of GloVe can be regarded as a (weighted) matrix Decomposition task. Without loss of generality, we absorb bias into vectors by letting
 \begin{equation*}
@@ -246,6 +256,7 @@ are model parameters, i.e. embeddings. However, since the full gradient is often
 \begin{remark}
 	Again we see that there are no explicit constraints on the updates to ensure $x_{w,d-1}=1$ and $y_{w,d}=1$. A possible remedy is applying projected gradient descent instead to force the constraints.
 \end{remark}
+
 \section{Word embeddings}
 The word embeddings found by distributional context models like skip-gram model turn out to capture semantics of words as expected. For example, the nearest words to "frog" in the embedding vector space are actually frogs, as illustrated in Figure \ref{fig_5_5}, which is remarkable since the model even do not know what a frog looks like.
 \begin{figure}[h] 
