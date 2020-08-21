@@ -1,3 +1,11 @@
+# Some Comments
+
+First, I have to say I'm glad that there are ones willing to help to improve this personal thing, and I am totally aware that this is one far far from perfection. 
+
+- There are tons of typos and grammar misusing. Due to the limited time, I finished one chapter on average in 1 or 2 days (full-day) including the time for rewatching the recording and slides, structuring the content, looking up things on-line, and preparing the extra materials. Sorry for my poor English writing offending some of you that are sensitive to basic grammars. I will try to improve my English :)
+
+- The notes are really written for my personal interests based on my own understanding (that's why it's called personal notes). If you have suggestions about the content and willing to share, I am glad to chat. I always learn a lot by discussing stuff with my friends. If you are really a master of CIL and feel bad about it, then my suggestion is just don't waste your time on it.
+
 # Updates
 
 Hey guys, I have finished all exams expect CIL and will start to update the later chapters soon:)
