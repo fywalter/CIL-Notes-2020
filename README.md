@@ -1,10 +1,3 @@
-# Some Comments
-
-First, I have to say I'm glad that there are ones willing to help to improve this personal thing, and I am totally aware that this is one far far from perfection. 
-
-- There are tons of typos and grammar misusing. Due to the limited time, I finished one chapter on average in 1 or 2 days (full-day) including the time for rewatching the recording and slides, structuring the content, looking up things on-line, and preparing the extra materials. Sorry for my poor English writing offending some of you that are sensitive to basic grammars. I will try to improve my English :)
-
-- The notes are really written for my personal interests based on my own understanding (that's why it's called personal notes). If you have suggestions about the content and willing to share, I am glad to chat. I always learn a lot by discussing stuff with my friends. If you are really a master of CIL and feel bad about it, then my suggestion is just don't waste your time on it.
 
 # Updates
 
@@ -14,6 +7,7 @@ Hey guys, I have finished all exams expect CIL and will start to update the late
 - Chapter 8 (Aug. 17)
 - Chapter 9 (Aug. 18)
 - Full version (Aug. 19)
+- Separate .tex files for different chapters with all images in a separate folder (Thanks for the suggestions from Guillaume).
 
 # CIL-Notes-2020
 Personal notes for Computational Intelligence Lab (CIL) 2020 by Prof. Thomas Hofmann at ETH Zurich
@@ -36,3 +30,12 @@ I will try to update it here with more chapters after my second exam on Aug. 12t
 After I finish it, I will share the .tex file with all the figures as well. 
 
 It's a lot of fun to write this stuff.
+
+
+# Some Comments
+
+First, I have to say I'm glad that there are ones willing to help to improve this personal thing, and I am totally aware that this is one far far from perfection. 
+
+- There are tons of typos and grammar misusing. Due to the limited time, I finished one chapter on average in 1 or 2 days (full-day) including the time for rewatching the recording and slides, structuring the content, looking up things on-line, and preparing the extra materials. Sorry for my poor English writing offending some of you that are sensitive to basic grammars. I will try to improve my English :)
+
+- The notes are really written for my personal interests based on my own understanding (that's why it's called personal notes). If you have suggestions about the content and willing to share, I am glad to chat. I always learn a lot by discussing stuff with my friends. If you are really a master of CIL and feel bad about it, then my suggestion is just don't waste your time on it.
