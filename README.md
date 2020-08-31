@@ -1,41 +1,25 @@
-
-# Updates
-
-Hey guys, I have finished all exams expect CIL and will start to update the later chapters soon:)
-
-- Chapter 7 is on the notes! (Aug. 15)
-- Chapter 8 (Aug. 17)
-- Chapter 9 (Aug. 18)
-- Full version (Aug. 19)
-- Separate .tex files for different chapters with all images in a separate folder (Thanks for the suggestions from Guillaume).
-
 # CIL-Notes-2020
 Personal notes for Computational Intelligence Lab (CIL) 2020 by Prof. Thomas Hofmann at ETH Zurich
 
 By Yu Fei
 
-Motivated by some friends of mine, I started to write my personal lecture notes for this course which
+Motivated by some friends of mine, I wrote my personal lecture notes for this course which
 
-- covers all stuff (I believe) on the slides
-- add important remarks (I think) mentioned by Prof. Thomas Hofmann during the lectures but not on the slides
-- connect things in each chapter together with motivations and detailed discussions (if they are correct) in a plain language
-- add some supplementary materials (also reorganized with my own words) that I think are useful to get a deeper insight into some points
+- cover all the stuff (I believe) on the slides;
+- add important remarks (I think) mentioned by Prof. Thomas Hofmann during the lectures but not on the slides;
+- connect things in each chapter together with motivations and detailed discussions (if they are correct) in a plain language;
+- add some supplementary materials (also reorganized with my own words) that I think are useful to get a deeper insight into some points.
 
-and I’d like to share it. It will be happy for me if it helps someone learn this course considering that it actually covers a lot of stuff.
+The materials are mainly based on
 
-The original plan of mine was complete it before sharing it, but it turns out that there is less time to do this than expected, and it took more effort to write it than expected as well. Up to this point, I have only finished the first 6 chapters, with a draft on chapter 7, which I didn't put in the one in the attachment. Despite the incompleteness, I think I will make more sense to share earlier. 
+- lecture slides
+- lecture recordings (2020, 2019)
+- exercises, solutions and tutorial slides (2020)
+- piazza discussions (2020)
+- Pattern Recognition and Machine Learning (Bishop 2006)
+- original papers of the algorithms mentioned in the lectures
+- other courses I took (mainly mathematics of data science (2020) by Prof. Afonso at ETH Zurich).
 
-I will try to update it here with more chapters after my second exam on Aug. 12th and hopefully complete it by around Aug. 18th. Please leave some comments in the issue if you find some typos, something needs to be clarified more, or willing to provide suggestions on organizing stuff and writing style. I will fix those once I get some time.
+This course covers many interesting topics, but sometimes it goes too fast to get all the things just by looking at the slides and watching the recordings. This motivates me to try to organize things together with extra materials fulfilling the details. As a result, I feel I gain a much deeper understanding than before. To be honest, I would say either writing things like this or reading it might not be the most useful thing for preparing for the final exam. However, I believe it will provide some useful insights that are helpful to understand the fruitful contents prepared by Prof. Hofmann and the TAs during the semester. It is also a good way, from my point of view, to make this course better by accumulating meaningful discussions, comments, or thoughts by students in each year, since students tend to encounter similar problems through the attempt towards understanding.  This is also another reason for me to write this stuff before I forget them, and I tried to make everything in an easily editable way to allow later amendments.
 
-After I finish it, I will share the .tex file with all the figures as well. 
-
-It's a lot of fun to write this stuff.
-
-
-# Some Comments
-
-First, I have to say I'm glad that there are ones willing to help to improve this personal thing, and I am totally aware that this is one far far from perfection. 
-
-- There are tons of typos and grammar misusing. Due to the limited time, I finished one chapter on average in 1 or 2 days (full-day) including the time for rewatching the recording and slides, structuring the content, looking up things on-line, and preparing the extra materials. Sorry for my poor English writing offending some of you that are sensitive to basic grammars. I will try to improve my English :)
-
-- The notes are really written for my personal interests based on my own understanding (that's why it's called personal notes). If you have suggestions about the content and willing to share, I am glad to chat. I always learn a lot by discussing stuff with my friends. If you are really a master of CIL and feel bad about it, then my suggestion is just don't waste your time on it.
+I am totally aware that this note is far far from perfection or even being able to be called a well-written material. I wrote this note with an average speed of 0.5 to 1 chapter per day, and my English writing skills are not that good. As a result, there are many typos and grammar mistakes, and thanks to my friend Lixin and my classmate Guillaume Wang many of them have been fixed. I don't attempt to create a substitute for the lecture materials, but if it can help someone learn this course better, it makes all the sense.
