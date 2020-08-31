@@ -60,14 +60,19 @@ which is the marginal likelihood of ${\bf x}$. At this point, one might attempt 
 \log p_{\theta}({\bf x})=\log \int q_{\phi}({\bf z};{\bf x}) \frac{p_{\theta}({\bf x}|{\bf z})p({\bf z})}{q_{\phi}({\bf z};{\bf x})}d{\bf z} = \log \mathbb{E}_{q_{\phi}} \left[\frac{p_{\theta}({\bf x}|{\bf z})p({\bf z})}{q_{\phi}({\bf z};{\bf x})}\right].
 \end{equation*}
 \begin{remark}
-	In the CIL slides, the notation ($q_\phi({\bf z}|{\bf x})$ or $q_\phi({\bf z};{\bf x})$) is inconsistent. To avoid unnecessary confusions, we use the latter one for the whole chapter. One can interpret it as the conditional distribution given ${\bf x}$ (as our VAE model is trying to model this), but as a variational distribution, it only has to be a distribution over ${\bf z}$ (that's why in PRML it just wrote $q_\phi({\bf z})$ instead). The notation of $q_\phi({\bf z};{\bf x})$ is just to emphasize it is a distribution over ${\bf z}$ with possible dependencies on ${\bf x}$.
+	In the CIL slides, the notation ($q_\phi({\bf z}|{\bf x})$ or $q_\phi({\bf z};{\bf x})$) is inconsistent. To avoid unnecessary confusions, we use the latter one for the whole chapter. However, as argued by one of the TAs on piazza, the notation $q_\phi({\bf z}|{\bf x})$ is improper. In the context of VAE, we assume two random variables: ${\bf x}$ (the data) and ${\bf z}$ (the latent variable). We also assume that the probability density function (pdf) they admit exist ($p({\bf x})$ and $p({\bf z})$). In VAE, we introduce a variational distribution $q_\phi({\bf z})$ to approximate the conditional distribution (or posterior) $p({\bf z}|{\bf x})$ which is called true precisely because it is induced by random variables ${\bf x}$ and ${\bf z}$. Note that even if $q_\phi({\bf z})$ might depend on ${\bf x}$ (since ${\bf x}$ is given, so we can write $q_\phi({\bf z};{\bf x})$) and $q_\phi({\bf z})$ is technically a distribution, it is not the conditional pdf $p({\bf z}|{\bf x})$ (unless they are the same almost everywhere) and it makes no sense to write it in a conditional form $q_\phi({\bf z}|{\bf x})$. In general
+	\begin{equation*}
+		p({\bf z}) = \int q_\phi({\bf z};{\bf x})p({\bf x})d{\bf x}
+	\end{equation*}
+	will not hold.
+	%One can interpret it as the conditional distribution given ${\bf x}$ (as our VAE model is trying to model this), but as a variational distribution, it only has to be a distribution over ${\bf z}$ (that's why in PRML it just wrote $q_\phi({\bf z})$ instead). The notation of $q_\phi({\bf z};{\bf x})$ is just to emphasize it is a distribution over ${\bf z}$ with possible dependencies on ${\bf x}$.
 \end{remark}
 Use the concavity and apply the Jensen's inequality yields
 \begin{align*}
 \log p_{\theta}({\bf x})\geq {\rm ELBO}(\phi, \theta)&=\mathbb{E}_{q_{\phi}}\left[\log p_{\theta}({\bf x}|{\bf z}) + \log \frac{p({\bf z})}{q_{\phi}({\bf z};{\bf x})} \right]\\
-&=\mathbb{E}_{q_{\phi}}\left[\log p_{\theta}({\bf x}|{\bf z})\right] - {\rm KL}(q_{\phi}({\bf z};{\bf x})||p({\bf z})),
+&=\underbrace{\mathbb{E}_{q_{\phi}}\left[\log p_{\theta}({\bf x}|{\bf z})\right]}_{\rm predictiveness} - \underbrace{{\rm KL}(q_{\phi}({\bf z};{\bf x})||p({\bf z}))}_{\rm regularization},
 \end{align*}
-where ${\rm KL}(q||p)$ is the Kullback-Leibler divergence, which is a measure of distance between distributions. Just as in EM, we can alternatively
+where ${\rm KL}(q||p)$ is the Kullback-Leibler divergence, which is a measure of distance between distributions. The term $-{\rm KL}(q_{\phi}({\bf z};{\bf x})||p({\bf z}))$ encorages the posterior distribution to be close to the prior distribution on the latent variable ${\bf z}$, which acts as a regularizer. The first term $\mathbb{E}_{q_{\phi}}\left[\log p_{\theta}({\bf x}|{\bf z})\right]$ maximizes the likelihood of ${\bf x}$, which is related to the reconstruction quality. Just as in EM, we can alternatively
 \begin{itemize}
 	\item maximize w.r.t. $\theta$ (generative model, given $q_{\phi}$), M step in EM;
 	\item maximize w.r.t. $\phi$ (inference model, given $p_\theta$), E step in EM. 
@@ -171,9 +176,9 @@ Here's a brief proof for the Bonnet formula:
 \end{align*}
 For ${\bf U}$, we can use the re-parameterization trick. Recall that we have ${\bf z}\sim \mathcal{N}(\mu,{\bf C})$, and this can be re-parameterized by ${\bf z}={\bf U}\zeta +\mu,\ \zeta\sim\mathcal{N}(0,{\bf I})$. Then LOTUS yields
 \begin{equation*}
-\nabla_{\bf U}\mathbb{E}_{\bf z}[f({\bf z})]=\nabla_{\bf U}\mathbb{E}_\zeta[f({\bf U}\zeta +\mu)]=\mathbb{E}_\zeta[\zeta^T{\bf g}],\ {\bf g}:=\nabla_\xi f(\xi)_{|\xi={\bf U}\zeta+\mu},
+\nabla_{\bf U}\mathbb{E}_{\bf z}[f({\bf z})]=\nabla_{\bf U}\mathbb{E}_\zeta[f({\bf U}\zeta +\mu)]=\mathbb{E}_\zeta[\zeta{\bf g}^T],\ {\bf g}:=\nabla_\xi f(\xi)_{|\xi={\bf U}\zeta+\mu},
 \end{equation*}
-where we have used the chain rule for composition of a function with a linear function.
+where we have used the chain rule for composition of a function with a linear function. Note that it should be $\mathbb{E}_\zeta[\zeta{\bf g}^T]$ rather than $\mathbb{E}_\zeta[\zeta^T{\bf g}]$ as in the slides.
 \begin{remark}\label{rmk_8_1}
 	In Figure \ref{fig_8_2}, the diagram seems to require the model (networks) to give $q_\phi({\bf z};{\bf x})$  at the last layer of the inference model. However, as the deep latent Gaussian models suggest, this is not the case in the sense that the model can generate the distribution of a part of ${\bf z}$ at the intermediate layers. So we see that the VAE shown in Figure \ref{fig_8_2} is an abstract framework, and $q_\phi({\bf z};{\bf x})$ and $p_\theta({\bf x}|{\bf z})$ don't even have to be produced by a deep model, but other models work as well.
 \end{remark}
@@ -235,6 +240,32 @@ where ${\Theta}$ is the class of functions for generative model from which the g
 &\phi^{t+1}=\phi^t+\eta \nabla_\phi l(\theta^{t+1},\phi^t).
 \end{align*}
 Although this may diverge and has no theoretical guarantees as SGD for convex functions. Problematic cases that this fails can be easily constructed. However, this is just a staring point, and at least we can tell that one can easily train a classifier to distinguish VAE-generated data while the GANs can do better. Despite, the GANs are very hard to train, very expensive to train (many GPUs needed), and there is no clear evaluation metric (we don't know whether the models captures all important things), with efforts and proper tricks people have made it to use GANs to generate amazing results (Figure \ref{fig_8_1}).
+\subsection{GANs v.s. VAEs}
+GANs and VAEs are both generative models but have quite different characteristics. In this section we will compare the two generative models we have seen from several aspects:
+\begin{itemize}
+	\item Quality
+	\begin{itemize}
+		\item VAEs tend to generate blurry images. This is caused by pixel-wise factorization and local loss. (Recall the loss function for Gaussian observation models (\ref{eq_8_gau_obs}).) In this case, the high-frequency details are poorly correlated and hard to predict. 
+		\item GANs generate sharper images. By training a discriminator, we get a ``perceptual'' loss.
+	\end{itemize}
+\begin{figure}[h] 
+	\centering 
+	\includegraphics[width=6cm]{fig_8_GANs_VAEs.jpg} 
+	\caption{Comparison of image quality.}\label{fig_8_GANs_VAEs}
+\end{figure}
+	\item Training
+	\begin{itemize}
+		\item GANs are very hard to train, where the architectures and hyperparameters play a crucial role. People have proposed many tricks and variants.
+		\item VAEs are some what easier to train but not too easy (especially for other domains like text).
+	\end{itemize}
+	\item Applications
+	\begin{itemize}
+		\item GANs learn an implicit density and can only generate (samples).
+		\item VAEs learn an explicit density with which we can sample and encode.
+		\item Some approaches combine VAEs and GANs to take the best of both of worlds (VAE-GAN: VAE to gide the style of a GAN).
+	\end{itemize}
+\end{itemize}
+
 \section{Autoregressive Models}
 The last part of this chapter is about something less fascinating but easier and able to produce quite good results. These models have been used for many speech synthesis tasks.
 \par Despite the generating power of VAEs and GANs, they requires complicated learning methods and are not always successful. Autoregressive models exploits a simpler strategy: generate output variable one at a time with the help of chain rule:
